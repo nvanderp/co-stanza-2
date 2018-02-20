@@ -5,4 +5,6 @@
  */
 export {default as Main} from './main'
 export {default as UserHome} from './user-home'
+export {default as PoemContainer} from './poem-container'
+export {default as PoemDisplay} from './poem-display'
 export {Login, Signup} from './auth-form'

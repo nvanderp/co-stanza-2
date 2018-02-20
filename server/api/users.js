@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const {User} = require('../db/models')
+const {User, Poem} = require('../db/models')
 module.exports = router
 
 function adminMiddleware(req, res, next) {
@@ -18,5 +18,35 @@ router.get('/', adminMiddleware, (req, res, next) => {
     attributes: ['id', 'email']
   })
     .then(users => res.json(users))
+    .catch(next)
+})
+
+router.get('/:userId/poems', (req, res, next) => {
+  Poem.findAll({
+    where: {
+      userId: req.params.userId
+    }
+  })
+    .then(poems => res.json(poems))
+    .catch(next)
+})
+
+router.post('/:userId/poems', (req, res, next) => {
+  Poem.create({
+    title: req.body.title,
+    content: req.body.content,
+    userId: req.params.userId
+  })
+    .then(poem => res.json(poem))
+    .catch(next)
+})
+
+router.delete('/:userId', (req, res, next) => {
+  User.destroy({
+    where: {
+      id: req.params.userId
+    }
+  })
+    .then(() => res.status(204).end())
     .catch(next)
 })
