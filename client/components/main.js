@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {withRouter, Link} from 'react-router-dom'
 import {logout} from '../store'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 
 /**
  * COMPONENT
@@ -34,7 +35,9 @@ const Main = (props) => {
         }
       </nav>
       <hr />
-      {children}
+      <MuiThemeProvider>
+        {children}
+      </MuiThemeProvider>
     </div>
   )
 }

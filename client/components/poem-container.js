@@ -1,10 +1,17 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import {fetchNewPoem} from '../store'
+import {fetchNewPoem, savePoemInStyle} from '../store'
 import {PoemDisplay} from './index'
+import Slider from 'material-ui/Slider'
 
 class PoemContainer extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      style: 'normal'
+    }
+  }
   componentDidMount () {
     this.props.loadInitialPoem()
     this.canvas = new window.fabric.StaticCanvas('poem')
@@ -16,17 +23,36 @@ class PoemContainer extends Component {
     this.canvas.renderAll()
   }
 
+  styleChange(event, value, poem, canvas) {
+    canvas.clear()
+    switch (value) {
+      case 1:
+        this.setState({style: 'abstract'})
+        mountPoem(poem, canvas, this.state.style)
+      break
+      default:
+        this.setState({style: 'normal'})
+        mountPoem(poem, canvas, this.state.style)
+      break
+    }
+  }
+
   render () {
-    const {poem} = this.props
+    const {poem, tempSavePoem} = this.props
+    const style = this.state.style
     if (typeof poem.content === 'string') {
       poem.content = generatePoemArray(poem.content)
       poem.title = poem.content[0].join(' ')
     }
     if (typeof poem.content === 'object' && this.canvas && this.canvas.getObjects().length === 0) {
-      mountPoem(poem.content, this.canvas)
+      mountPoem(poem, this.canvas, style)
+      if (!poem[this.state.style]) tempSavePoem(this.canvas, poem, style)
     }
     return (
-      <PoemDisplay poem={poem} canvas={this.canvas} />
+      <div>
+        <Slider step={1} value={0} onChange={(event, target) => this.styleChange(event, target, poem, this.canvas)} />
+        <PoemDisplay canvas={this.canvas} />
+      </div>
     )
   }
 }
@@ -55,7 +81,8 @@ function generatePoemArray(content) {
   return newPoem
 }
 
-function mountPoem(content, canvas) {
+function normalPoem(canvas, poem) {
+  let content = poem.content
   let prevTextWidth = 0
   let prevTextLeft = 0
   let left = 0
@@ -64,12 +91,12 @@ function mountPoem(content, canvas) {
   let min = 0
   content.forEach(array => {
     const text = new window.fabric.Text(array.join(' '),
-			{
-				// fill: this.state.textColor,
-				// textBackgroundColor: this.state.textBGColor,
-				// fontFamily: this.state.fontFamily,
-				// fontWeight: this.state.fontWeight,
-				fontSize: 24
+      {
+        // fill: this.state.textColor,
+        // textBackgroundColor: this.state.textBGColor,
+        // fontFamily: this.state.fontFamily,
+        // fontWeight: this.state.fontWeight,
+        fontSize: 24
       }
     )
     max = canvas.getWidth() - text.width
@@ -96,6 +123,18 @@ function mountPoem(content, canvas) {
   })
 }
 
+function mountPoem(poem, canvas, style) {
+  if (poem[style]) {
+    canvas.loadFromJSON(poem[style], canvas.renderAll.bind(canvas))
+  }
+  else if (style === 'normal') {
+    normalPoem(canvas, poem)
+  }
+  else if (style === 'abstract') {
+    normalPoem(canvas, poem) // change me!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  }
+}
+
 const mapState = (state) => {
   return {
     poem: state.poem
@@ -106,6 +145,9 @@ const mapDispatch = (dispatch) => {
   return {
     loadInitialPoem () {
       dispatch(fetchNewPoem())
+    },
+    tempSavePoem (canvas, poem, style) {
+      dispatch(savePoemInStyle(canvas, poem, style))
     }
   }
 }
@@ -117,4 +159,5 @@ export default connect(mapState, mapDispatch)(PoemContainer)
  */
 PoemContainer.propTypes = {
   loadInitialPoem: PropTypes.func.isRequired,
+  tempSavePoem: PropTypes.func.isRequired
 }

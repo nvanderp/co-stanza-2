@@ -1,7 +1,7 @@
 import React from 'react'
 
 const PoemDisplay = (props) => {
-  const {poem, canvas} = props
+  const {canvas} = props
 
   return (
     <div>
