@@ -28,19 +28,20 @@ class PoemContainer extends Component {
 
   styleChange(event, value) {
     const poem = this.props.poem
+    const style = this.state.style
     this.canvas.clear()
     switch (value) {
       case 1:
         this.setState({style: 'abstract', styleValue: 1, styleText: <p>A Poem About Nothing</p>})
-        if (!poem[this.state.style]) this.generatePoemArray()
-        this.mountPoem(poem, this.canvas, this.state.style)
       break
       default:
         this.setState({style: 'normal', styleValue: 0, styleText: <p>A Normal Poem</p>})
-        if (!poem[this.state.style]) this.generatePoemArray()
-        this.mountPoem(poem, this.canvas, this.state.style)
       break
     }
+    if (!poem[style]) {
+      this.generatePoemArray()
+    }
+    this.mountPoem(poem, this.canvas, style)
   }
 
   generatePoemArray() {
@@ -68,6 +69,7 @@ class PoemContainer extends Component {
         }
       }
     })
+    this.props.poem[this.state.style].title = newPoem[0].join(' ')
     return newPoem
   }
 
@@ -87,9 +89,17 @@ class PoemContainer extends Component {
     let prevTextWidth = 0
     let prevTextLeft = 0
     let left = 0
-    let top = 0
+    let top = 40
     let max = 0
     let min = 0
+    const title = new window.fabric.Text(this.props.poem[this.state.style].title,
+      {
+        fontSize: 24,
+        underline: true,
+        left: this.canvas.getWidth() / 2
+      }
+    )
+    this.canvas.add(title)
     content.forEach(array => {
       const text = new window.fabric.Text(array.join(' '),
         {
@@ -129,7 +139,6 @@ class PoemContainer extends Component {
     if (poem.quote && !poem[style]) {
       poem[style] = {}
       poem[style].poemArr = this.generatePoemArray()
-      poem.title = poem[style].poemArr[0].join(' ')
     }
     if (poem[style] && poem[style].poemArr && this.canvas && this.canvas.getObjects().length === 0) {
       this.mountPoem()
