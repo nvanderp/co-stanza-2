@@ -6,7 +6,7 @@ const Poem = db.define('poem', {
     type: Sequelize.STRING,
     allowNull: false
   },
-  content: {
+  quote: {
     type: Sequelize.STRING
   }
 })

@@ -34,7 +34,7 @@ export const savePoemInStyle = (canvas, poem, style) =>
   dispatch => {
     switch (style) {
       default:
-        poem[style] = canvas.toJSON()
+        poem[style].poem = canvas.toJSON()
     }
     dispatch(tempSavePoem(poem || defaultPoem))
   }

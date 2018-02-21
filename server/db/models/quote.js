@@ -2,7 +2,7 @@ const Sequelize = require('sequelize')
 const db = require('../db')
 
 const Quote = db.define('quote', {
-  content: {
+  quote: {
     type: Sequelize.TEXT
   }
 })
