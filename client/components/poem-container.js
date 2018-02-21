@@ -51,6 +51,8 @@ class PoemContainer extends Component {
     return (
       <div>
         <Slider step={1} value={0} onChange={(event, target) => this.styleChange(event, target, poem, this.canvas)} />
+        {this.state.style === 'normal' && <p>A Normal Poem</p>}
+        {this.state.style === 'abstract' && <p>A Poem About Nothing</p>}
         <PoemDisplay canvas={this.canvas} />
       </div>
     )
