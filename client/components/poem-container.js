@@ -9,8 +9,8 @@ class PoemContainer extends Component {
     this.props.loadInitialPoem()
     this.canvas = new window.fabric.StaticCanvas('poem')
     this.canvas.setDimensions({
-      width: 600,
-      height: 800
+      width: 500,
+      height: 500
     })
     // this.canvas.backgroundColor = 'red'
     this.canvas.renderAll()
@@ -22,7 +22,7 @@ class PoemContainer extends Component {
       poem.content = generatePoemArray(poem.content)
       poem.title = poem.content[0].join(' ')
     }
-    if (typeof poem.content === 'object' && this.canvas) {
+    if (typeof poem.content === 'object' && this.canvas && this.canvas.getObjects().length === 0) {
       mountPoem(poem.content, this.canvas)
     }
     return (
@@ -56,11 +56,15 @@ function generatePoemArray(content) {
 }
 
 function mountPoem(content, canvas) {
+  let prevTextWidth = 0
+  let prevTextLeft = 0
   let left = 0
   let top = 0
+  let max = 0
+  let min = 0
   content.forEach(array => {
     const text = new window.fabric.Text(array.join(' '),
-			{ left: left, top: top,
+			{
 				// fill: this.state.textColor,
 				// textBackgroundColor: this.state.textBGColor,
 				// fontFamily: this.state.fontFamily,
@@ -68,15 +72,27 @@ function mountPoem(content, canvas) {
 				fontSize: 24
       }
     )
-    canvas.add(text)
+    max = canvas.getWidth() - text.width
     // move like a typewriter
-    const randomNum = Math.floor(Math.random() * (2))
-    if (!randomNum) {
-      left += Math.floor(Math.random() * (170 - 135) + 135)
-    } else {
-      left = 0
-      top += Math.floor(Math.random() * (70 - 35) + 35)
+    const randomNum = Math.floor(Math.random() * (3))
+    if (!randomNum && (prevTextLeft + prevTextWidth + text.width) < canvas.getWidth()) {
+      left = Math.floor(Math.random() * (max - min)) + min
     }
+    else if (randomNum === 1 && (prevTextLeft + prevTextWidth + text.width) < canvas.getWidth()) {
+      left = Math.floor(Math.random() * max)
+      top += Math.floor(Math.random() * (70 - 30) + 30)
+    }
+    else {
+      left = 0
+      top += Math.floor(Math.random() * (70 - 30) + 30)
+    }
+    if (top >= canvas.getHeight()) canvas.setHeight(top + text.height + text.top)
+    text.left = left
+    text.top = top
+    prevTextWidth = text.width
+    prevTextLeft = text.left
+    min = prevTextLeft + prevTextWidth
+    canvas.add(text)
   })
 }
 
